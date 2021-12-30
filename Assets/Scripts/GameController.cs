@@ -8,7 +8,7 @@ public class GameController : MonoBehaviour
     public static GameController Instance;
     #endregion
     [SerializeField] GameObject finishLine;
-    [SerializeField] int spawnWallNum = 11;
+    private int spawnWallNum = 12;
 
     private GameObject[] walls2;
     private float _z = 7;
@@ -21,9 +21,11 @@ public class GameController : MonoBehaviour
     {
         Instance = this;
         GenerateColors();
+        PlayerPrefs.GetInt("Level", 1);
     }
     private void Start()
     {
+        Debug.Log(PlayerPrefs.GetInt("Level", 1));
         GenerateLevel();
     }
 
@@ -44,17 +46,18 @@ public class GameController : MonoBehaviour
         for (int i = 0; i < spawnWallNum; i++)
         {
             GameObject wall;
-            if (Random.value <= 0.2 && !colorBump) //chance spawn
+            if (Random.value <= 0.2 && !colorBump && PlayerPrefs.GetInt("Level") >= 3) // COLORBUMP chance spawn
             {
                 colorBump = true;
                 wall = Instantiate(Resources.Load("ColorBump") as GameObject, transform.position, Quaternion.identity);
             }
-            else if (Random.value <= 0.2)
+            else if (Random.value <= 0.2 && PlayerPrefs.GetInt("Level") >= 7) //3 WALL PREFAB SPAWN
             {
                 wall = Instantiate(Resources.Load("Walls") as GameObject, transform.position, Quaternion.identity);
             }
-            else if (i >= GetSpawnNum() && !colorBump) //hard spawn
+            else if (i >= spawnWallNum - 1 && !colorBump && PlayerPrefs.GetInt("Level") >= 3) //COLORBUMP hard spawn
             {
+                Debug.Log("Hard Spawned");
                 colorBump = true;
                 wall = Instantiate(Resources.Load("ColorBump") as GameObject, transform.position, Quaternion.identity);
             }
@@ -83,7 +86,19 @@ public class GameController : MonoBehaviour
 
     public void GenerateLevel()
     {
-        GetSpawnNum();
+        if (PlayerPrefs.GetInt("Level") >= 1 && PlayerPrefs.GetInt("Level") <= 4)
+        {
+            spawnWallNum = 12;
+        }
+        else if (PlayerPrefs.GetInt("Level") >= 5 && PlayerPrefs.GetInt("Level") <= 10)
+        {
+            spawnWallNum = 13;
+        }
+        else
+        {
+            spawnWallNum = 14;
+        }
+
         _z = 7;
         DeleteWalls();
         colorBump = false;
@@ -102,10 +117,6 @@ public class GameController : MonoBehaviour
         }
         Destroy(GameObject.FindGameObjectWithTag("ColorBump"));
     }
-
-
-    private int GetSpawnNum()
-    {
-        return spawnWallNum;
-    }
 }
+
+

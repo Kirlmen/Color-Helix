@@ -11,6 +11,7 @@ public class WallScript : MonoBehaviour
 
     private float rotationZ;
     private float rotationZMax = 180;
+    private bool smallWall;
 
     void Awake()
     {
@@ -47,6 +48,16 @@ public class WallScript : MonoBehaviour
         wall2.GetComponent<BoxCollider>().size = new Vector3(0.9f, 1.85f, 0.2f);
         wall2.GetComponent<BoxCollider>().center = new Vector3(0.46f, 0, 0);
 
+        if (UnityEngine.Random.value <= 0.2 && PlayerPrefs.GetInt("Level") >= 8) smallWall = true;
+        if (smallWall)
+        {
+            rotationZMax = 90;
+        }
+        else
+        {
+            rotationZMax = 180;
+        }
+
 
 
         for (int i = 0; i < 100; i++)
@@ -67,8 +78,17 @@ public class WallScript : MonoBehaviour
         wall1.transform.localRotation = Quaternion.Euler(Vector3.zero);
         wall2.transform.localRotation = Quaternion.Euler(Vector3.zero);
 
-        GameObject wallFragmentChild = wall1.transform.GetChild(25).gameObject;
-        AddStar(wallFragmentChild);
+        if (!smallWall)
+        {
+            GameObject wallFragmentChild = wall1.transform.GetChild(25).gameObject;
+            AddStar(wallFragmentChild);
+        }
+        else
+        {
+            GameObject wallFragmentChild = wall1.transform.GetChild(14).gameObject;
+            AddStar(wallFragmentChild);
+        }
+
 
     }
 

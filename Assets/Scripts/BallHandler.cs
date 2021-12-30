@@ -11,7 +11,8 @@ public class BallHandler : MonoBehaviour
     private float height = 0.58f;
     [SerializeField] private float speed = 4;
 
-    private bool move;
+    private bool move, isRising;
+    private float lerpAmount;
 
     private void Awake()
     {
@@ -21,6 +22,7 @@ public class BallHandler : MonoBehaviour
     void Start()
     {
         move = false;
+        SetColor(GameController.Instance.hitColor);
     }
 
     void Update()
@@ -33,7 +35,7 @@ public class BallHandler : MonoBehaviour
         if (move)
         {
             //transform.position = newPosition;
-            BallHandler.z += speed * 0.025f;
+            BallHandler.z += speed * Time.deltaTime;
         }
 
         transform.position = new Vector3(0, height, BallHandler.z);
@@ -44,12 +46,17 @@ public class BallHandler : MonoBehaviour
     {
         if (other.CompareTag("Hit"))
         {
-            Debug.Log("Broke the wall");
+            Destroy(other.transform.parent.gameObject);
+        }
+        if (other.tag == "ColorBump")
+        {
+            lerpAmount = 0;
+            isRising = true;
         }
 
         if (other.CompareTag("FinishLine"))
         {
-            Debug.Log("Next Level");
+            StartCoroutine(PlayNewLevel());
         }
 
         if (other.CompareTag("Fail"))
@@ -68,6 +75,20 @@ public class BallHandler : MonoBehaviour
         yield break;
     }
 
+    IEnumerator PlayNewLevel()
+    {
+        Transform mainCamera = this.gameObject.transform.GetChild(0);
+        mainCamera.SetParent(null);
+        yield return new WaitForSeconds(1.5f);
+        move = false;
+        //Flash
+        PlayerPrefs.SetInt("Level", PlayerPrefs.GetInt("Level") + 1);
+        mainCamera.SetParent(this.gameObject.transform);
+        mainCamera.transform.localPosition = new Vector3(0, 9.1f, -16.8f);
+        z = 0;
+        GameController.Instance.GenerateLevel();
+    }
+
     public static float GetZ()
     {
         return BallHandler.z;
@@ -76,6 +97,15 @@ public class BallHandler : MonoBehaviour
     private void UpdateColor()
     {
         _meshRenderer.material.color = currentColor;
+        if (isRising)
+        {
+            currentColor = Color.Lerp(_meshRenderer.material.color, GameObject.FindGameObjectWithTag("ColorBump").GetComponent<ColorBump>().GetColor(), lerpAmount);
+            lerpAmount += Time.deltaTime;
+        }
+        if (lerpAmount >= 1)
+        {
+            isRising = false;
+        }
     }
 
     public static Color SetColor(Color color)
