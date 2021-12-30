@@ -4,11 +4,15 @@ using UnityEngine;
 
 public class GameController : MonoBehaviour
 {
+    #region  Singleton
     public static GameController Instance;
-
-    [SerializeField] int spawnWallNum = 11;
-    private float _z = 7;
+    #endregion
     [SerializeField] GameObject finishLine;
+    [SerializeField] int spawnWallNum = 11;
+
+    private GameObject[] walls2;
+    private float _z = 7;
+    private bool colorBump;
 
     public Color[] colors;
     [HideInInspector] public Color hitColor, failColor;
@@ -20,7 +24,7 @@ public class GameController : MonoBehaviour
     }
     private void Start()
     {
-        SpawnWalls();
+        GenerateLevel();
     }
 
     void GenerateColors()
@@ -40,9 +44,28 @@ public class GameController : MonoBehaviour
         for (int i = 0; i < spawnWallNum; i++)
         {
             GameObject wall;
-            wall = Instantiate(Resources.Load("Wall") as GameObject, transform.position, Quaternion.identity);
-            wall.transform.SetParent(GameObject.Find("Helix").transform);
+            if (Random.value <= 0.2 && !colorBump) //chance spawn
+            {
+                colorBump = true;
+                wall = Instantiate(Resources.Load("ColorBump") as GameObject, transform.position, Quaternion.identity);
+            }
+            else if (Random.value <= 0.2)
+            {
+                wall = Instantiate(Resources.Load("Walls") as GameObject, transform.position, Quaternion.identity);
+            }
+            else if (i >= GetSpawnNum() && !colorBump) //hard spawn
+            {
+                colorBump = true;
+                wall = Instantiate(Resources.Load("ColorBump") as GameObject, transform.position, Quaternion.identity);
+            }
+            else
+            {
+                wall = Instantiate(Resources.Load("Wall") as GameObject, transform.position, Quaternion.identity);
+            }
 
+
+
+            wall.transform.SetParent(GameObject.Find("Helix").transform);
             wall.transform.localPosition = new Vector3(0, 0, _z);
             float randomRotation = Random.Range(0, 360);
             wall.transform.localRotation = Quaternion.Euler(new Vector3(0, 0, randomRotation)); //random "roll" rotation to the ring
@@ -56,5 +79,33 @@ public class GameController : MonoBehaviour
 
 
         }
+    }
+
+    public void GenerateLevel()
+    {
+        GetSpawnNum();
+        _z = 7;
+        DeleteWalls();
+        colorBump = false;
+        SpawnWalls();
+    }
+
+    private void DeleteWalls()
+    {
+        walls2 = GameObject.FindGameObjectsWithTag("Fail");
+        if (walls2.Length > 1)
+        {
+            for (int i = 0; i < walls2.Length; i++)
+            {
+                Destroy(walls2[i].transform.parent.gameObject);
+            }
+        }
+        Destroy(GameObject.FindGameObjectWithTag("ColorBump"));
+    }
+
+
+    private int GetSpawnNum()
+    {
+        return spawnWallNum;
     }
 }

@@ -9,8 +9,7 @@ public class BallHandler : MonoBehaviour
     private MeshRenderer _meshRenderer;
 
     private float height = 0.58f;
-    private Vector3 newPosition;
-    [SerializeField] private float speed = 6;
+    [SerializeField] private float speed = 4;
 
     private bool move;
 
@@ -26,16 +25,18 @@ public class BallHandler : MonoBehaviour
 
     void Update()
     {
+        // z = transform.position.z;
         if (Touch.IsPressing()) { move = true; }
-        Vector3 newPosition = new Vector3(transform.position.x, transform.position.y, transform.position.z + speed * Time.deltaTime);
-        z = transform.position.z;
+
+        //Vector3 newPosition = new Vector3(transform.position.x, transform.position.y, z + speed * Time.deltaTime);
+
         if (move)
         {
-            transform.position = newPosition;
-            //BallHandler.z += speed * Time.deltaTime;
+            //transform.position = newPosition;
+            BallHandler.z += speed * 0.025f;
         }
 
-        //transform.position = new Vector3(0, height, BallHandler.z);
+        transform.position = new Vector3(0, height, BallHandler.z);
         UpdateColor();
     }
 
@@ -53,8 +54,18 @@ public class BallHandler : MonoBehaviour
 
         if (other.CompareTag("Fail"))
         {
-            Debug.Log("Failed");
+            StartCoroutine(GameOver());
         }
+    }
+
+
+    IEnumerator GameOver()
+    {
+        GameController.Instance.GenerateLevel();
+        BallHandler.z = 0;
+        Vector3 startPos = Vector3.zero;
+        move = false;
+        yield break;
     }
 
     public static float GetZ()

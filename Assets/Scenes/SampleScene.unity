@@ -233,7 +233,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: abab96d51ee0a4b449e1ca7b5458f948, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 10
+  speed: 4
 --- !u!54 &37071764
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -461,8 +461,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fd6d98a9a7de0874f8a81ab053319b80, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spawnWallNum: 11
   finishLine: {fileID: 484272452}
+  spawnWallNum: 11
   colors:
   - {r: 0.20784314, g: 0.8862745, b: 0.9490196, a: 1}
   - {r: 1, g: 0, b: 0.5019608, a: 1}
