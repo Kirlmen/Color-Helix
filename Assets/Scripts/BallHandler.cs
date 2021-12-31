@@ -4,23 +4,31 @@ using UnityEngine;
 
 public class BallHandler : MonoBehaviour
 {
+    public bool perfectStar;
+
     private static float z;
     private static Color currentColor;
     private MeshRenderer _meshRenderer;
+    [SerializeField] private SpriteRenderer _splash;
+    private Animator animator;
 
     private float height = 0.58f;
     [SerializeField] private float speed = 4;
 
-    private bool move, isRising;
+    private bool move, isRising, gameOver, displayed;
     private float lerpAmount;
 
     private void Awake()
     {
         _meshRenderer = GetComponent<MeshRenderer>();
+        //_splash = transform.GetComponentInChildren<SpriteRenderer>();
+        animator = transform.GetComponentInChildren<Animator>();
+        Debug.Log(_splash);
     }
 
     void Start()
     {
+
         move = false;
         SetColor(GameController.Instance.hitColor);
     }
@@ -28,7 +36,11 @@ public class BallHandler : MonoBehaviour
     void Update()
     {
         // z = transform.position.z;
-        if (Touch.IsPressing()) { move = true; }
+        if (Touch.IsPressing() && !gameOver)
+        {
+            move = true;
+            GetComponent<SphereCollider>().enabled = true;
+        }
 
         //Vector3 newPosition = new Vector3(transform.position.x, transform.position.y, z + speed * Time.deltaTime);
 
@@ -37,7 +49,7 @@ public class BallHandler : MonoBehaviour
             //transform.position = newPosition;
             BallHandler.z += speed * Time.deltaTime;
         }
-
+        displayed = false;
         transform.position = new Vector3(0, height, BallHandler.z);
         UpdateColor();
     }
@@ -46,6 +58,18 @@ public class BallHandler : MonoBehaviour
     {
         if (other.CompareTag("Hit"))
         {
+            if (perfectStar && !displayed)
+            {
+                displayed = true;
+                GameObject pointDisplay = Instantiate(Resources.Load("PointDisplay"), transform.position, Quaternion.identity) as GameObject;
+                pointDisplay.GetComponent<PointDisplay>().SetText("PERFECT! +" + PlayerPrefs.GetInt("Level") * 2);
+            }
+            else if (!perfectStar && !displayed)
+            {
+                displayed = true;
+                GameObject pointDisplay = Instantiate(Resources.Load("PointDisplay"), transform.position, Quaternion.identity) as GameObject;
+                pointDisplay.GetComponent<PointDisplay>().SetText("+" + PlayerPrefs.GetInt("Level"));
+            }
             Destroy(other.transform.parent.gameObject);
         }
         if (other.tag == "ColorBump")
@@ -63,28 +87,45 @@ public class BallHandler : MonoBehaviour
         {
             StartCoroutine(GameOver());
         }
+
+        if (other.CompareTag("Star"))
+        {
+            perfectStar = true;
+        }
     }
 
 
     IEnumerator GameOver()
     {
-        GameController.Instance.GenerateLevel();
-        BallHandler.z = 0;
-        Vector3 startPos = Vector3.zero;
+        gameOver = true;
+        _splash.color = currentColor;
+        _splash.transform.position = new Vector3(0, 0.7f, BallHandler.z - 0.05f);
+        _splash.transform.eulerAngles = new Vector3(0, 0, Random.value * 360);
+        _splash.enabled = true;
+        _meshRenderer.enabled = false;
+        GetComponent<SphereCollider>().enabled = false;
         move = false;
-        yield break;
+        PlayFlash();
+        yield return new WaitForSeconds(1.5f);
+
+        gameOver = false;
+        z = 0;
+        GameController.Instance.GenerateLevel();
+        _splash.enabled = false;
+        _meshRenderer.enabled = true;
+
     }
 
     IEnumerator PlayNewLevel()
     {
-        Transform mainCamera = this.gameObject.transform.GetChild(0);
+        Transform mainCamera = Camera.main.transform;
         mainCamera.SetParent(null);
         yield return new WaitForSeconds(1.5f);
         move = false;
-        //Flash
-        PlayerPrefs.SetInt("Level", PlayerPrefs.GetInt("Level") + 1);
         mainCamera.SetParent(this.gameObject.transform);
         mainCamera.transform.localPosition = new Vector3(0, 9.1f, -16.8f);
+        PlayFlash();
+        PlayerPrefs.SetInt("Level", PlayerPrefs.GetInt("Level") + 1);
         z = 0;
         GameController.Instance.GenerateLevel();
     }
@@ -117,4 +158,12 @@ public class BallHandler : MonoBehaviour
     {
         return currentColor;
     }
+
+    private void PlayFlash()
+    {
+        animator.SetTrigger("Flash");
+    }
+
+
+
 }

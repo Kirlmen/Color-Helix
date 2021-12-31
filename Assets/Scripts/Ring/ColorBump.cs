@@ -21,10 +21,10 @@ public class ColorBump : MonoBehaviour
         transform.rotation = Quaternion.Euler(Vector3.zero);
         color = GameController.Instance.colors[Random.Range(0, GameController.Instance.colors.Length)];
         _meshRenderer.material.color = color;
-        if (color == BallHandler.GetColor())
-        {
-            color = GameController.Instance.colors[Random.Range(0, GameController.Instance.colors.Length)];
-        }
+        // if (color == BallHandler.GetColor())
+        // {
+        //     color = GameController.Instance.colors[Random.Range(0, GameController.Instance.colors.Length)];
+        // }
 
     }
 

@@ -40,10 +40,13 @@ public class WallScript : MonoBehaviour
         wall1.name = "Wall1";
         wall2.name = "Wall2";
 
+        wall1.tag = "Wall1";
+        wall2.gameObject.tag = "Fail";
+
         wall1.transform.SetParent(transform);
         wall2.transform.SetParent(transform);
 
-        wall2.gameObject.tag = "Fail";
+
         wall2.AddComponent<BoxCollider>();
         wall2.GetComponent<BoxCollider>().size = new Vector3(0.9f, 1.85f, 0.2f);
         wall2.GetComponent<BoxCollider>().center = new Vector3(0.46f, 0, 0);
@@ -97,5 +100,6 @@ public class WallScript : MonoBehaviour
         GameObject star = Instantiate(perfectStar, transform.position, Quaternion.identity);
         star.transform.SetParent(wallFragmentChild.transform);
         star.transform.localPosition = new Vector3(0.05f, 0.75f, -0.06f);
+        star.transform.localRotation = Quaternion.identity;
     }
 }
