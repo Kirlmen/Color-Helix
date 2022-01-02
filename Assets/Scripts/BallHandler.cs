@@ -18,12 +18,19 @@ public class BallHandler : MonoBehaviour
     private bool move, isRising, gameOver, displayed;
     private float lerpAmount;
 
+    private AudioSource failSound, hitSound, completeSound;
+
     private void Awake()
     {
+        failSound = GameObject.Find("FailSound").GetComponent<AudioSource>();
+        hitSound = GameObject.Find("HitSound").GetComponent<AudioSource>();
+        completeSound = GameObject.Find("CompleteSound").GetComponent<AudioSource>();
+
+
         _meshRenderer = GetComponent<MeshRenderer>();
         //_splash = transform.GetComponentInChildren<SpriteRenderer>();
         animator = transform.GetComponentInChildren<Animator>();
-        Debug.Log(_splash);
+
     }
 
     void Start()
@@ -56,20 +63,24 @@ public class BallHandler : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        Debug.Log(other);
         if (other.CompareTag("Hit"))
         {
             if (perfectStar && !displayed)
             {
+                Debug.Log("perfect star true");
                 displayed = true;
                 GameObject pointDisplay = Instantiate(Resources.Load("PointDisplay"), transform.position, Quaternion.identity) as GameObject;
                 pointDisplay.GetComponent<PointDisplay>().SetText("PERFECT! +" + PlayerPrefs.GetInt("Level") * 2);
             }
             else if (!perfectStar && !displayed)
             {
+                Debug.Log("perfect star false");
                 displayed = true;
                 GameObject pointDisplay = Instantiate(Resources.Load("PointDisplay"), transform.position, Quaternion.identity) as GameObject;
                 pointDisplay.GetComponent<PointDisplay>().SetText("+" + PlayerPrefs.GetInt("Level"));
             }
+            hitSound.Play();
             Destroy(other.transform.parent.gameObject);
         }
         if (other.tag == "ColorBump")
@@ -85,18 +96,20 @@ public class BallHandler : MonoBehaviour
 
         if (other.CompareTag("Fail"))
         {
-            StartCoroutine(GameOver());
+            //StartCoroutine(GameOver());
         }
 
         if (other.CompareTag("Star"))
         {
             perfectStar = true;
+
         }
     }
 
 
     IEnumerator GameOver()
     {
+        failSound.Play();
         gameOver = true;
         _splash.color = currentColor;
         _splash.transform.position = new Vector3(0, 0.7f, BallHandler.z - 0.05f);
@@ -118,6 +131,7 @@ public class BallHandler : MonoBehaviour
 
     IEnumerator PlayNewLevel()
     {
+        completeSound.Play();
         Transform mainCamera = Camera.main.transform;
         mainCamera.SetParent(null);
         yield return new WaitForSeconds(1.5f);

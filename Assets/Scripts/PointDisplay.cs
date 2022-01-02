@@ -16,7 +16,7 @@ public class PointDisplay : MonoBehaviour
     void LateUpdate()
     {
         transform.position = new Vector3(transform.position.x, transform.position.y, BallHandler.GetZ());
-        Destroy(gameObject, 1.2f);
+        Destroy(gameObject, 1f);
 
     }
 

@@ -23,11 +23,10 @@ public class GameController : MonoBehaviour
     {
         Instance = this;
         GenerateColors();
-        PlayerPrefs.GetInt("Level", 1);
+        PlayerPrefs.SetInt("Level", 1);
     }
     private void Start()
     {
-        Debug.Log(PlayerPrefs.GetInt("Level", 1));
         GenerateLevel();
     }
 
@@ -62,15 +61,20 @@ public class GameController : MonoBehaviour
             if (GameObject.Find("Ball").GetComponent<BallHandler>().perfectStar)
             {
                 GameObject.Find("Ball").GetComponent<BallHandler>().perfectStar = false;
+
                 score += PlayerPrefs.GetInt("Level") * 2;
             }
             else
             {
                 score += PlayerPrefs.GetInt("Level");
             }
-            Debug.Log(score);
         }
 
+    }
+
+    public float GetFinishlineDistance()
+    {
+        return finishLine.transform.position.z;
     }
 
     private void SpawnWalls()
