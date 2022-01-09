@@ -96,7 +96,7 @@ public class BallHandler : MonoBehaviour
 
         if (other.CompareTag("Fail"))
         {
-            //StartCoroutine(GameOver());
+            StartCoroutine(GameOver());
         }
 
         if (other.CompareTag("Star"))
